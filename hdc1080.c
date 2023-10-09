@@ -77,14 +77,14 @@ int initialize_hdc1080(i2c_inst_t *i2cn, uint sda_pin, uint scl_pin) {
     i2c = i2cn;
 
     // Initialize it
-    DEBUG_printf("Initializing I2C\n");
+    DEBUG_printf("initialize_hdc1080: initializing I2C\n");
     i2c_init(i2c, 400 * 1000);
 
-    DEBUG_printf("Configuring GPIO pins\n");
+    DEBUG_printf("initialize_hdc1080: configure pins\n");
     gpio_set_function(sda_pin, GPIO_FUNC_I2C);
     gpio_set_function(scl_pin, GPIO_FUNC_I2C);
 
-    DEBUG_printf("All set\n");
+    DEBUG_printf("initialize_hdc1080: all set\n");
 }
 
 static uint16_t hdc1080_read_register(i2c_inst_t *i2cn, uint8_t reg, uint16_t delay) {

@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "i2c.h"
+#include "debug.h"
 
 void rp2040_i2c_init(rp2040_oled_t *oled)
 {
@@ -24,6 +25,7 @@ bool rp2040_i2c_test_addr(rp2040_oled_t *oled, uint8_t addr)
     int ret;
 
     ret = i2c_read_blocking(oled->i2c, addr, &buf, 1, false);
+    DEBUG_printf("rp2040_i2c_test_addr: addr %x, result: %x, return: %d\n", addr, buf, ret);
     return ret != PICO_ERROR_GENERIC;
 }
 

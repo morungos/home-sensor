@@ -30,7 +30,7 @@ file(READ "certs/mqtt-server.txt" FILE_MQTT_SERVER)
 
 # Link the Project to a source file (step 4.6)
 add_executable(PicoTest 
-    source.c 
+    test.c 
     hdc1080.c
     i2c.c
     gfx.c

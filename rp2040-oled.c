@@ -9,6 +9,7 @@
 #include "gfx.h"
 #include "i2c.h"
 #include "display.h"
+#include "debug.h"
 
 static bool rp2040_oled_write_command(rp2040_oled_t *oled, uint8_t cmd)
 {
@@ -87,7 +88,10 @@ static int rp2040_oled_display_init(rp2040_oled_t *oled)
         default:
             return -1;
     };
+    DEBUG_printf("rp2040_oled_display_init: width: %d, height: %d\n", oled->width, oled->height);
 
+
+    DEBUG_printf("rp2040_oled_display_init: write initbuf\n");
     rp2040_i2c_write(oled, initbuf, initlen);
 
     if (oled->invert)
@@ -108,10 +112,12 @@ static int rp2040_oled_display_init(rp2040_oled_t *oled)
         oled->dirty_buf_size = (oled->width / 8) * (oled->height / PAGE_BITS);
     }
 
+    DEBUG_printf("rp2040_oled_display_init: rp2040_oled_force_flush\n");
     rp2040_oled_force_flush(oled);
 
     oled->dirty_buf = malloc(oled->dirty_buf_size);
     memset(oled->dirty_buf, 0x00, oled->dirty_buf_size);
+    DEBUG_printf("rp2040_oled_display_init: initialized dirty_buf\n");
 
     return 0;
 }
@@ -167,8 +173,10 @@ rp2040_oled_type_t rp2040_oled_autodetect(rp2040_oled_t *oled)
     rp2040_oled_type_t type = OLED_NOT_FOUND;
     uint8_t status = 0x00;
 
-    if (rp2040_i2c_read_register(oled, 0x00, &status, 1) < 0)
+    if (rp2040_i2c_read_register(oled, 0x00, &status, 1) < 0) {
+        DEBUG_printf("rp2040_oled_autodetect: OLED_NOT_FOUND\n");
         return OLED_NOT_FOUND;
+    }
 
     status &= 0x0f;
 
@@ -188,6 +196,7 @@ rp2040_oled_type_t rp2040_oled_autodetect(rp2040_oled_t *oled)
     if (type != OLED_NOT_FOUND && oled->addr == 0x3d)
         type++;
 
+    DEBUG_printf("rp2040_oled_autodetect: type: %d\n", type);
     return type;
 }
 
@@ -197,15 +206,19 @@ rp2040_oled_type_t rp2040_oled_init(rp2040_oled_t *oled)
     rp2040_i2c_init(oled);
 
     if (oled->reset_pin != PIN_UNDEF) {
+        DEBUG_printf("rp2040_oled_init: reset\n");
         gpio_set_dir(oled->reset_pin, GPIO_OUT);
         rp2040_oled_reset(oled);
     }
 
     if (oled->addr == PIN_UNDEF || oled->addr == 0x00) {
+        DEBUG_printf("rp2040_oled_init: scan\n");
         oled->addr = rp2040_oled_scan(oled);
+        DEBUG_printf("rp2040_oled_init: addr: %x\n", oled->addr);
         if (oled->addr == PIN_UNDEF)
             return OLED_NOT_FOUND;
     } else if (!rp2040_i2c_test_addr(oled, oled->addr)) {
+        DEBUG_printf("rp2040_oled_init: test addr failed\n");
         return OLED_NOT_FOUND;
     }
 
