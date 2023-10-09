@@ -29,8 +29,14 @@ file(READ "certs/mqtt-password.txt" FILE_MQTT_PASSWORD)
 file(READ "certs/mqtt-server.txt" FILE_MQTT_SERVER)
 
 # Link the Project to a source file (step 4.6)
-# add_executable(PicoTest source.c hdc1080.c)
-add_executable(PicoTest picow_iot.c)
+add_executable(PicoTest 
+    source.c 
+    hdc1080.c
+    i2c.c
+    gfx.c
+    rp2040-oled.c
+)
+# add_executable(PicoTest picow_iot.c)
 
 target_compile_definitions(PicoTest PRIVATE
     WIFI_SSID=\"${WIFI_SSID}\"
