@@ -19,7 +19,15 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(WIFI_SSID "${WIFI_SSID}" CACHE INTERNAL "WiFi SSID")
 set(WIFI_PASSWORD "${WIFI_PASSWORD}" CACHE INTERNAL "WiFi password")
- 
+
+file(READ "certs/ca.crt" FILE_CRYPTO_CA)
+file(READ "certs/client.crt" FILE_CRYPTO_CLIENT)
+file(READ "certs/client.key" FILE_CRYPTO_CLIENT_KEY)
+
+file(READ "certs/mqtt-user.txt" FILE_MQTT_USER)
+file(READ "certs/mqtt-password.txt" FILE_MQTT_PASSWORD)
+file(READ "certs/mqtt-server.txt" FILE_MQTT_SERVER)
+
 # Link the Project to a source file (step 4.6)
 # add_executable(PicoTest source.c hdc1080.c)
 add_executable(PicoTest picow_iot.c)
@@ -27,6 +35,12 @@ add_executable(PicoTest picow_iot.c)
 target_compile_definitions(PicoTest PRIVATE
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
+    FILE_CRYPTO_CA=\"${FILE_CRYPTO_CA}\"
+    FILE_CRYPTO_CLIENT=\"${FILE_CRYPTO_CLIENT}\"
+    FILE_CRYPTO_CLIENT_KEY=\"${FILE_CRYPTO_CLIENT_KEY}\"
+    FILE_MQTT_USER=\"${FILE_MQTT_USER}\"
+    FILE_MQTT_PASSWORD=\"${FILE_MQTT_PASSWORD}\"
+    FILE_MQTT_SERVER=\"${FILE_MQTT_SERVER}\"
     NO_SYS=1
 )
 

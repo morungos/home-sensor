@@ -1,2 +1,5 @@
 .DS_Store
 build
+/certs/*.key
+/certs/*-password.txt
+/.vscode
