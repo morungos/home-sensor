@@ -144,7 +144,7 @@ err_t mqtt_test_publish(MQTT_CLIENT_T *state)
   u8_t qos = 0; /* 0 1 or 2, see MQTT specification.  AWS IoT does not support QoS 2 */
   u8_t retain = 0;
   cyw43_arch_lwip_begin();
-  err = mqtt_publish(state->mqtt_client, "pico_w/test", buffer, strlen(buffer), qos, retain, mqtt_pub_request_cb, state);
+  err = mqtt_publish(state->mqtt_client, "/test", buffer, strlen(buffer), qos, retain, mqtt_pub_request_cb, state);
   cyw43_arch_lwip_end();
   if(err != ERR_OK) {
     DEBUG_printf("Publish err: %d\n", err);
@@ -160,8 +160,8 @@ err_t mqtt_test_connect(MQTT_CLIENT_T *state) {
     memset(&ci, 0, sizeof(ci));
 
     ci.client_id = "PicoW";
-    ci.client_user = NULL;
-    ci.client_pass = NULL;
+    ci.client_user = MQTT_USER;
+    ci.client_pass = MQTT_PASSWORD;
     ci.keep_alive = 0;
     ci.will_topic = NULL;
     ci.will_msg = NULL;
@@ -230,7 +230,7 @@ void mqtt_run_test(MQTT_CLIENT_T *state) {
                     cyw43_arch_lwip_begin();
 
                     if (!subscribed) {
-                        mqtt_sub_unsub(state->mqtt_client, "pico_w/recv", 0, mqtt_sub_request_cb, 0, 1);
+                        mqtt_sub_unsub(state->mqtt_client, "/test", 0, mqtt_sub_request_cb, 0, 1);
                         subscribed = true;
                     }
 
@@ -251,7 +251,10 @@ void mqtt_run_test(MQTT_CLIENT_T *state) {
 }
 
 int main() { 
+    int code;
     stdio_init_all();
+
+    sleep_ms(10000);
 
     if (cyw43_arch_init()) {
         DEBUG_printf("failed to initialise\n");
@@ -260,8 +263,10 @@ int main() {
     cyw43_arch_enable_sta_mode();
 
     DEBUG_printf("Connecting to WiFi...\n");
-    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
-        DEBUG_printf("failed to  connect.\n");
+    DEBUG_printf("SSID: %s\n", WIFI_SSID);
+    DEBUG_printf("Password: %s\n", WIFI_PASSWORD);
+    if ((code = cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000))) {
+        DEBUG_printf("failed to connect: %d\n", code);
         return 1;
     } else {
         DEBUG_printf("Connected.\n");
