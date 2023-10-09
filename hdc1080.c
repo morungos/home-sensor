@@ -3,6 +3,7 @@
 
 #include "pico/stdlib.h"
 #include "hdc1080.h"
+#include "debug.h"
 
 static const uint8_t HDC1080_ADDRESS = 0x40;
 
@@ -33,14 +34,14 @@ int reg_read(i2c_inst_t *i2c,
     }
 
     // Read data from register(s) over I2C
-    //printf("Selecting register: %x\n", reg);
+    TRACE_printf("Selecting register: %x\n", reg);
     i2c_write_blocking(i2c, addr, &reg, 1, true);
 
-    //printf("Sleep: %d\n", delay);
+    TRACE_printf("Sleep: %d\n", delay);
     sleep_ms(delay);
 
     num_bytes_read = i2c_read_blocking(i2c, addr, buf, nbytes, false);
-    //printf("Read response; bytes: %d\n", num_bytes_read);
+    TRACE_printf("Read response; bytes: %d\n", num_bytes_read);
 
     return num_bytes_read;
 }
@@ -76,32 +77,32 @@ int initialize_hdc1080(i2c_inst_t *i2cn, uint sda_pin, uint scl_pin) {
     i2c = i2cn;
 
     // Initialize it
-    printf("Initializing I2C\n");
+    DEBUG_printf("Initializing I2C\n");
     i2c_init(i2c, 400 * 1000);
 
-    printf("Configuring GPIO pins\n");
+    DEBUG_printf("Configuring GPIO pins\n");
     gpio_set_function(sda_pin, GPIO_FUNC_I2C);
     gpio_set_function(scl_pin, GPIO_FUNC_I2C);
 
-    printf("All set\n");
+    DEBUG_printf("All set\n");
 }
 
 static uint16_t hdc1080_read_register(i2c_inst_t *i2cn, uint8_t reg, uint16_t delay) {
     uint8_t data[2];
 
     int bytes = reg_read(i2cn, HDC1080_ADDRESS, reg, delay, data, 2);
-    //printf("hdc1080_read_register: register: %x, bytes: %d\n", reg, bytes);
+    TRACE_printf("hdc1080_read_register: register: %x, bytes: %d\n", reg, bytes);
     if (bytes != 2) {
         return 0;
     }
-    //printf("hdc1080_read_register: data: %x, %x\n", data[0], data[1]);
+    TRACE_printf("hdc1080_read_register: data: %x, %x\n", data[0], data[1]);
     return (data[0] << 8) + data[1];
 }
 
 uint16_t hdc1080_read_device_id(i2c_inst_t *i2cn) {
     uint16_t result;
     result = hdc1080_read_register(i2cn, HDC1080_DEVICE_ID, 10);
-    //printf("HDC1080_DEVICE_ID: %d\n", result);
+    TRACE_printf("HDC1080_DEVICE_ID: %d\n", result);
     return result;
 }
 
@@ -109,6 +110,14 @@ float hdc1080_temperature(i2c_inst_t *i2cn) {
     uint16_t result;
     
     result = hdc1080_read_register(i2cn, HDC1080_TEMPERATURE, 150);
-    //printf("HDC1080_TEMPERATURE: %d\n", result);
+    TRACE_printf("HDC1080_TEMPERATURE: %d\n", result);
     return ((float) result / 65536.0f) * 165.0f - 40.0f;
+}
+
+float hdc1080_humidity(i2c_inst_t *i2cn) {
+    uint16_t result;
+    
+    result = hdc1080_read_register(i2cn, HDC1080_HUMIDITY, 150);
+    TRACE_printf("HDC1080_HUMIDITY: %d\n", result);
+    return ((float) result / 65536.0f) * 100.0f;
 }
