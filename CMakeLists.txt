@@ -13,7 +13,7 @@ add_compile_options(-Wall
 )
  
 # Set the name and version of the project
-project(PicoTest VERSION 1.0.0 LANGUAGES C CXX ASM)
+project(home-sensor VERSION 1.0.0 LANGUAGES C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -29,16 +29,16 @@ file(READ "certs/mqtt-password.txt" FILE_MQTT_PASSWORD)
 file(READ "certs/mqtt-server.txt" FILE_MQTT_SERVER)
 
 # Link the Project to a source file (step 4.6)
-add_executable(PicoTest 
+add_executable(home-sensor 
     test.c 
     hdc1080.c
     i2c.c
     gfx.c
     rp2040-oled.c
 )
-# add_executable(PicoTest picow_iot.c)
+# add_executable(home-sensor picow_iot.c)
 
-target_compile_definitions(PicoTest PRIVATE
+target_compile_definitions(home-sensor PRIVATE
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
     FILE_CRYPTO_CA=\"${FILE_CRYPTO_CA}\"
@@ -50,13 +50,13 @@ target_compile_definitions(PicoTest PRIVATE
     NO_SYS=1
 )
 
-target_include_directories(PicoTest PRIVATE
+target_include_directories(home-sensor PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts
 )
  
 # Link the Project to an extra library (pico_stdlib)
-target_link_libraries(PicoTest 
+target_link_libraries(home-sensor 
     pico_stdlib 
     pico_cyw43_arch_lwip_poll
     pico_lwip_mbedtls
@@ -69,9 +69,9 @@ target_link_libraries(PicoTest
 pico_sdk_init()
  
 # Enable USB, UART output
-pico_enable_stdio_usb(PicoTest 1)
-pico_enable_stdio_uart(PicoTest 1)
+pico_enable_stdio_usb(home-sensor 1)
+pico_enable_stdio_uart(home-sensor 1)
  
 # Enable extra outputs (SWD?)
-pico_add_extra_outputs(PicoTest)
+pico_add_extra_outputs(home-sensor)
 
